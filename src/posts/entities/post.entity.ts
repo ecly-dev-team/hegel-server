@@ -30,6 +30,8 @@ export class Post {
   updateDate: Date;
 
   @JoinTable()
-  @ManyToMany(() => Tag, (tag) => tag.posts)
-  tags: string[];
+  @ManyToMany(() => Tag, (tag) => tag.posts, {
+    cascade: true,
+  })
+  tags: Tag[];
 }
