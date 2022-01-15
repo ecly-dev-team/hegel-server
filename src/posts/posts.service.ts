@@ -1,5 +1,6 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Post } from './entities/post.entity';
@@ -11,11 +12,24 @@ export class PostsService {
     private postsRepository: Repository<Post>,
   ) {}
 
-  findAll(): Promise<Post[]> {
-    return this.postsRepository.find();
+  create(createPostDto: CreatePostDto): Promise<Post> {
+    const post = this.postsRepository.create(createPostDto);
+    return this.postsRepository.save(post);
   }
 
-  async findOne(id: string): Promise<Post> {
+  findAllForList(paginationQueryDto: PaginationQueryDto): Promise<Post[]> {
+    const { limit, offset } = paginationQueryDto;
+    return this.postsRepository.find({
+      order: {
+        createDate: 'DESC',
+      },
+      select: ['id', 'title', 'abstract', 'tags', 'createDate'],
+      skip: offset,
+      take: limit,
+    });
+  }
+
+  async findOneForDetail(id: number): Promise<Post> {
     const post = await this.postsRepository.findOne(id);
     if (!post) {
       throw new NotFoundException(`Post #${id} not found`);
@@ -23,21 +37,8 @@ export class PostsService {
     return post;
   }
 
-  create(createPostDto: CreatePostDto) {
-    const post = this.postsRepository.create(createPostDto);
-    return this.postsRepository.save(post);
-  }
-
-  async delete(id: string) {
-    try {
-      const post = await this.findOne(id);
-      return this.postsRepository.delete(post);
-    } catch (err) {
-      if (err.status === 404) {
-        throw new NotFoundException(`Post #${id} doesn't exist`);
-      } else {
-        throw new HttpException('Unknown error', 500); // use http error enum please
-      }
-    }
+  async delete(id: number) {
+    const post = await this.findOneForDetail(id);
+    return this.postsRepository.delete(post);
   }
 }

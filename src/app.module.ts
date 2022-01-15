@@ -4,6 +4,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Post } from './posts/entities/post.entity';
 import { PostsModule } from './posts/posts.module';
+import { TagsController } from './tags/tags.controller';
+import { TagsService } from './tags/tags.service';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -19,6 +22,7 @@ import { PostsModule } from './posts/posts.module';
       synchronize: true,
     }),
     PostsModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
