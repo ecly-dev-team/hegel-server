@@ -43,8 +43,13 @@ export class PostsController {
   }
 
   @Patch(':id')
-  updatePost(@Body() updatePostDto: UpdatePostDto, @Param('id') id: number) {
-    return this.postsService.update(id, updatePostDto);
+  async updatePost(
+    @Body() updatePostDto: UpdatePostDto,
+    @Param('id') id: number,
+  ) {
+    const updatedPost = await this.postsService.update(id, updatePostDto);
+    this.tagsService.removeOrphanedTags();
+    return updatedPost;
   }
 
   @Delete(':id')
