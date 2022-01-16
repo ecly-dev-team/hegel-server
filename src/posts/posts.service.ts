@@ -43,7 +43,7 @@ export class PostsService {
     const { limit, offset } = paginationQueryDto;
     return this.postRepository.find({
       order: {
-        createDate: 'DESC',
+        createDate: 'ASC',
       },
       select: ['id', 'title', 'abstract', 'createDate', 'updateDate'],
       relations: ['tags'],
