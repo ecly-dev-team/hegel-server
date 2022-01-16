@@ -26,6 +26,12 @@ export class PostsController {
     return this.postsService.findAllForList(paginationQueryDto);
   }
 
+  // optimizable
+  @Get('count')
+  async getPostCount() {
+    return { count: await this.postsService.getPostCount() };
+  }
+
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.postsService.findOneForDetail(id);

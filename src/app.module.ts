@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Post } from './posts/entities/post.entity';
 import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
+import { ConfigModule } from './config/config.module';
 
 @Module({
   imports: [
@@ -20,6 +20,7 @@ import { TagsModule } from './tags/tags.module';
     }),
     PostsModule,
     TagsModule,
+    ConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],

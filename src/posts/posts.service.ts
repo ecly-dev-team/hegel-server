@@ -13,7 +13,6 @@ export class PostsService {
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
     private tagsService: TagsService,
-    private postCount: number = 0,
   ) {}
 
   async create(createPostDto: CreatePostDto): Promise<Post> {
@@ -74,5 +73,10 @@ export class PostsService {
   async remove(id: number) {
     const post = await this.findOne(id);
     return this.postRepository.remove(post);
+  }
+
+  async getPostCount(): Promise<number> {
+    const postsAndCount = await this.postRepository.findAndCount();
+    return postsAndCount[1];
   }
 }
