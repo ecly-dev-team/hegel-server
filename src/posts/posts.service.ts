@@ -1,10 +1,10 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { Tag } from 'src/tags/entities/tag.entity';
 import { TagsService } from 'src/tags/tags.service';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
 
 @Injectable()
@@ -13,16 +13,31 @@ export class PostsService {
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
     private tagsService: TagsService,
+    private postCount: number = 0,
   ) {}
 
   async create(createPostDto: CreatePostDto): Promise<Post> {
-    const tags = await Promise.all(
-      createPostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
-    );
+    const tags =
+      createPostDto.tags &&
+      (await Promise.all(
+        createPostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
+      ));
     const post = this.postRepository.create({ ...createPostDto, tags });
     return this.postRepository.save(post);
-    // const post = this.postRepository.create(createPostDto);
-    // return this.postRepository.save(post);
+  }
+
+  async update(id: number, updatePostDto: UpdatePostDto): Promise<Post> {
+    const tags =
+      updatePostDto.tags &&
+      (await Promise.all(
+        updatePostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
+      ));
+    const post = await this.postRepository.preload({
+      id,
+      ...updatePostDto,
+      tags,
+    });
+    return this.postRepository.save(post);
   }
 
   findAllForList(paginationQueryDto: PaginationQueryDto): Promise<Post[]> {
@@ -56,8 +71,8 @@ export class PostsService {
     return post;
   }
 
-  async delete(id: number) {
+  async remove(id: number) {
     const post = await this.findOne(id);
-    return this.postRepository.delete(post);
+    return this.postRepository.remove(post);
   }
 }
