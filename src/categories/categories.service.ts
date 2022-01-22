@@ -67,4 +67,8 @@ export class CategoriesService {
   findTrees(): Promise<Category[]> {
     return this.categoryRepository.findTrees();
   }
+
+  findAncesters(category: Category): Promise<Category[]> {
+    return this.categoryRepository.findAncestors(category);
+  }
 }

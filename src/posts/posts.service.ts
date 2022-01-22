@@ -55,9 +55,9 @@ export class PostsService {
     return this.postRepository.save(post);
   }
 
-  findAllForList(paginationQueryDto: PaginationQueryDto): Promise<Post[]> {
+  async findAllForList(paginationQueryDto: PaginationQueryDto) {
     const { limit, offset } = paginationQueryDto;
-    return this.postRepository.find({
+    const res = await this.postRepository.find({
       order: {
         createDate: 'ASC',
       },
@@ -66,16 +66,35 @@ export class PostsService {
       skip: offset,
       take: limit,
     });
+    return Promise.all(
+      res.map(async (post) => {
+        if (post.category) {
+          const ancesters = await this.categoriesService.findAncesters(
+            post.category,
+          );
+          return { ...post, category: ancesters };
+        } else {
+          return post;
+        }
+      }),
+    );
   }
 
-  async findOneForDetail(id: number): Promise<Post> {
+  async findOneForDetail(id: number) {
     const post = await this.postRepository.findOne(id, {
       relations: ['tags', 'category'],
     });
     if (!post) {
       throw new NotFoundException(`Post #${id} not found`);
     }
-    return post;
+    if (post.category) {
+      const ancesters = await this.categoriesService.findAncesters(
+        post.category,
+      );
+      return { ...post, category: ancesters };
+    } else {
+      return post;
+    }
   }
 
   async findOne(id: number): Promise<Post> {
