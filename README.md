@@ -1,62 +1,35 @@
-## Build Database
+# hegel-server
 
-```bash
-docker-compose up -d
-```
-
-## Start dev
-
-```bash
-yarn
-yarn start:dev
-```
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This is the backend service of **Hegel Blogging Platform**.
 
 ## Installation
 
 ```bash
-$ npm install
+yarn
+```
+
+## Database Setup
+
+Make sure that [docker](https://www.docker.com/get-started) is installed on your computer.
+
+```bash
+yarn db:up
+```
+
+The PostgreSQL will listen to port 5432 by default.
+
+## Database Reset
+
+```bash
+yarn db:down
+yarn db:up
 ```
 
 ## Running the app
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+yarn start:dev
 ```
 
-## Test
+Nest CLI will run the app on watch mode.
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
