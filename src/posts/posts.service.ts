@@ -74,7 +74,7 @@ export class PostsService {
           );
           return { ...post, category: ancesters };
         } else {
-          return post;
+          return { ...post, category: [] };
         }
       }),
     );
@@ -93,7 +93,7 @@ export class PostsService {
       );
       return { ...post, category: ancesters };
     } else {
-      return post;
+      return { ...post, category: [] };
     }
   }
 
