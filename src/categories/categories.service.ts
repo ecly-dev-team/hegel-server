@@ -52,10 +52,13 @@ export class CategoriesService {
 
   async delete(id: number) {
     const category = await this.categoryRepository.findOne(id, {
-      relations: ['children'],
+      relations: ['children', 'posts'],
     });
     if (category.children.length) {
       throw new BadRequestException('children is not empty');
+    }
+    if (category.posts.length) {
+      throw new BadRequestException('posts is not empty');
     }
     console.log(category);
     return this.categoryRepository.remove(category);
