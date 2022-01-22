@@ -1,9 +1,11 @@
+import { Category } from 'src/categories/entities/category.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import {
   Column,
   Entity,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -34,4 +36,7 @@ export class Post {
     cascade: true,
   })
   tags: Tag[];
+
+  @ManyToOne(() => Category, (category) => category.posts)
+  category: Category;
 }

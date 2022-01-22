@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CategoriesService } from 'src/categories/categories.service';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { TagsService } from 'src/tags/tags.service';
 import { Repository } from 'typeorm';
@@ -13,6 +14,7 @@ export class PostsService {
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
     private tagsService: TagsService,
+    private categoriesService: CategoriesService,
   ) {}
 
   async create(createPostDto: CreatePostDto): Promise<Post> {
@@ -21,7 +23,16 @@ export class PostsService {
       (await Promise.all(
         createPostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
       ));
-    const post = this.postRepository.create({ ...createPostDto, tags });
+    const category =
+      createPostDto.category === 0
+        ? null
+        : await this.categoriesService.findOneById(createPostDto.category);
+    const post = this.postRepository.create({
+      ...createPostDto,
+      tags,
+      category,
+    });
+    console.log(post);
     return this.postRepository.save(post);
   }
 
@@ -31,10 +42,15 @@ export class PostsService {
       (await Promise.all(
         updatePostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
       ));
+    const category =
+      updatePostDto.category === 0
+        ? null
+        : await this.categoriesService.findOneById(updatePostDto.category);
     const post = await this.postRepository.preload({
       id,
       ...updatePostDto,
       tags,
+      category,
     });
     return this.postRepository.save(post);
   }
@@ -46,7 +62,7 @@ export class PostsService {
         createDate: 'ASC',
       },
       select: ['id', 'title', 'abstract', 'createDate', 'updateDate'],
-      relations: ['tags'],
+      relations: ['tags', 'category'],
       skip: offset,
       take: limit,
     });
@@ -54,7 +70,7 @@ export class PostsService {
 
   async findOneForDetail(id: number): Promise<Post> {
     const post = await this.postRepository.findOne(id, {
-      relations: ['tags'],
+      relations: ['tags', 'category'],
     });
     if (!post) {
       throw new NotFoundException(`Post #${id} not found`);

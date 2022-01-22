@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
 import { ConfigModule } from './config/config.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ConfigModule } from './config/config.module';
     PostsModule,
     TagsModule,
     ConfigModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
