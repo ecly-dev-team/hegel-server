@@ -6,7 +6,7 @@ export class Tag {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column('text')
   name: string;
 
   @ManyToMany(() => Post, (post) => post.tags)
