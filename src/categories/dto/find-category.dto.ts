@@ -1,7 +1,7 @@
-import { IsNumber, Min } from 'class-validator';
+import { IsInt, Min } from 'class-validator';
 
 export class FindCategoryDto {
-  @IsNumber()
+  @IsInt()
   @Min(1)
   id: number;
 }
