@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class UpdatePostDto {
   @IsString()
@@ -24,7 +24,8 @@ export class UpdatePostDto {
   @IsOptional()
   readonly tags: string[];
 
-  @IsNumber()
+  @IsInt()
+  @Min(0)
   @IsOptional()
   readonly category: number;
 }
