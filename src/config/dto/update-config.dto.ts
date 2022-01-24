@@ -1,7 +1,8 @@
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 
 export class UpdateConfigDto {
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @IsOptional()
   postsPerPage: number;
 }

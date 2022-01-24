@@ -1,7 +1,7 @@
-import { IsNumber, IsString, Min } from 'class-validator';
+import { IsInt, IsString, Min } from 'class-validator';
 
 export class CreateCategoryDto {
-  @IsNumber()
+  @IsInt()
   @Min(0)
   parentId: number;
 

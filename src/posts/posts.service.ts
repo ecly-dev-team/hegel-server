@@ -42,10 +42,12 @@ export class PostsService {
       (await Promise.all(
         updatePostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
       ));
+    // be aware of updatePostDto.category being 'undefined'
     const category =
       updatePostDto.category === 0
         ? null
-        : await this.categoriesService.findOneById(updatePostDto.category);
+        : updatePostDto.category &&
+          (await this.categoriesService.findOneById(updatePostDto.category));
     const post = await this.postRepository.preload({
       id,
       ...updatePostDto,

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTagDto } from './dto/create-tag.dto';
@@ -9,6 +13,9 @@ export class TagsService {
   constructor(@InjectRepository(Tag) private tagRepository: Repository<Tag>) {}
 
   async preloadTagByName(tagName: string): Promise<Tag> {
+    if (tagName === '') {
+      throw new BadRequestException(`Tag name should not be empty`);
+    }
     const tag = await this.tagRepository.findOne({ name: tagName });
     if (tag) {
       return tag;

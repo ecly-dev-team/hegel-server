@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/posts/entities/post.entity';
 import { TreeRepository } from 'typeorm';
@@ -15,7 +19,7 @@ export class CategoriesService {
   async findOneById(id: number): Promise<Category> {
     const category = await this.categoryRepository.findOne(id);
     if (!category) {
-      throw new BadRequestException(`id #${id} doesn't exist`);
+      throw new NotFoundException(`category id #${id} not found`);
     }
     return category;
   }
@@ -39,9 +43,6 @@ export class CategoriesService {
       return this.categoryRepository.save(category);
     } else {
       const parentCategory = await this.findOneById(parentId);
-      if (!parentCategory) {
-        throw new BadRequestException(`parentId #${parentId} doesn't exist`);
-      }
       const category = this.categoryRepository.create({
         name,
         parent: parentCategory,

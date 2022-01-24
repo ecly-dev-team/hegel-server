@@ -6,6 +6,9 @@ import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
 import { ConfigModule } from './config/config.module';
 import { CategoriesModule } from './categories/categories.module';
+import { CommentsModule } from './comments/comments.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +26,9 @@ import { CategoriesModule } from './categories/categories.module';
     TagsModule,
     ConfigModule,
     CategoriesModule,
+    CommentsModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
