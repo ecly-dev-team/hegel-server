@@ -10,18 +10,11 @@ export class CreatePostDto {
   @IsString()
   readonly content: string;
 
-  @IsDate()
-  readonly createDate: Date;
-
-  @IsDate()
-  @IsOptional()
-  readonly updateDate: Date;
-
   @IsString({ each: true })
   @IsOptional()
-  readonly tags: string[];
+  readonly tagNames: string[];
 
   @IsInt()
   @Min(0)
-  readonly category: number;
+  readonly categoryId: number;
 }

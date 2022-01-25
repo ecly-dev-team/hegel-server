@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,11 +17,27 @@ export class UsersService {
   ) {}
 
   async findOneByEmail(email: string) {
-    return this.userRepository.findOne({ email });
+    const user = await this.userRepository.findOne({ email });
+    if (!user) {
+      throw new NotFoundException(`user email ${email} not found`);
+    }
+    return user;
   }
 
   async findOneByName(name: string) {
-    return this.userRepository.findOne({ name });
+    const user = await this.userRepository.findOne({ name });
+    if (!user) {
+      throw new NotFoundException(`user name ${name} not found`);
+    }
+    return user;
+  }
+
+  async findOneById(id: number) {
+    const user = await this.userRepository.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`user id #${id} not found`);
+    }
+    return user;
   }
 
   async checkDuplicatedEmail(email: string) {

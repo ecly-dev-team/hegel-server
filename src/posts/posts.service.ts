@@ -1,8 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RequestUser } from 'src/auth/interface/request-user.interface';
 import { CategoriesService } from 'src/categories/categories.service';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { TagsService } from 'src/tags/tags.service';
+import { Role } from 'src/users/enum/role.enum';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -15,47 +23,125 @@ export class PostsService {
     private postRepository: Repository<Post>,
     private tagsService: TagsService,
     private categoriesService: CategoriesService,
+    private usersService: UsersService,
   ) {}
 
-  async create(createPostDto: CreatePostDto): Promise<Post> {
+  async create(
+    createPostDto: CreatePostDto,
+    requestUser: RequestUser,
+  ): Promise<Post> {
     const tags =
-      createPostDto.tags &&
+      createPostDto.tagNames &&
       (await Promise.all(
-        createPostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
+        createPostDto.tagNames.map((tagName) =>
+          this.tagsService.preloadTagByName(tagName),
+        ),
       ));
     const category =
-      createPostDto.category === 0
+      createPostDto.categoryId === 0
         ? null
-        : await this.categoriesService.findOneById(createPostDto.category);
+        : await this.categoriesService.findOneById(createPostDto.categoryId);
+
+    const author = await this.usersService.findOneById(requestUser.id);
+    const createDate = new Date();
     const post = this.postRepository.create({
       ...createPostDto,
       tags,
       category,
+      author,
+      createDate,
     });
-    console.log(post);
     return this.postRepository.save(post);
   }
 
-  async update(id: number, updatePostDto: UpdatePostDto): Promise<Post> {
+  // async create2(createPostDto: CreatePostDto): Promise<Post> {
+  //   const tags =
+  //     createPostDto.tags &&
+  //     (await Promise.all(
+  //       createPostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
+  //     ));
+  //   const category =
+  //     createPostDto.category === 0
+  //       ? null
+  //       : await this.categoriesService.findOneById(createPostDto.category);
+  //   const post = this.postRepository.create({
+  //     ...createPostDto,
+  //     tags,
+  //     category,
+  //   });
+  //   console.log(post);
+  //   return this.postRepository.save(post);
+  // }
+
+  async authorizationCheck(
+    id: number,
+    requestUser: RequestUser,
+  ): Promise<void> {
+    if (
+      requestUser.role === Role.ADMIN ||
+      requestUser.role === Role.SUPER_ADMIN
+    )
+      return;
+
+    const post = await this.findOneByIdForDetail(id);
+    if (post.author.id === requestUser.id) return;
+
+    throw new ForbiddenException();
+  }
+
+  async update(
+    id: number,
+    updatePostDto: UpdatePostDto,
+    requestUser: RequestUser,
+  ) {
+    await this.authorizationCheck(id, requestUser);
+
     const tags =
-      updatePostDto.tags &&
+      updatePostDto.tagNames &&
       (await Promise.all(
-        updatePostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
+        updatePostDto.tagNames.map((tagName) =>
+          this.tagsService.preloadTagByName(tagName),
+        ),
       ));
-    // be aware of updatePostDto.category being 'undefined'
+
     const category =
-      updatePostDto.category === 0
+      updatePostDto.categoryId === 0
         ? null
-        : updatePostDto.category &&
-          (await this.categoriesService.findOneById(updatePostDto.category));
+        : updatePostDto.categoryId &&
+          (await this.categoriesService.findOneById(updatePostDto.categoryId));
+
+    const updateDate = new Date();
     const post = await this.postRepository.preload({
       id,
       ...updatePostDto,
       tags,
       category,
+      updateDate,
     });
-    return this.postRepository.save(post);
+
+    return post;
   }
+
+  // async update(id: number, updatePostDto: UpdatePostDto): Promise<Post> {
+  //   const tags =
+  //     updatePostDto.tags &&
+  //     (await Promise.all(
+  //       updatePostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
+  //     ));
+  //   // be aware of updatePostDto.category being 'undefined'
+  //   const category =
+  //     updatePostDto.category === 0
+  //       ? null
+  //       : updatePostDto.category &&
+  //         (await this.categoriesService.findOneById(updatePostDto.category));
+  //   const post = await this.postRepository.preload({
+  //     id,
+  //     ...updatePostDto,
+  //     tags,
+  //     category,
+  //   });
+  //   return this.postRepository.save(post);
+  // }
 
   async findAllForList(paginationQueryDto: PaginationQueryDto) {
     const { limit, offset } = paginationQueryDto;
@@ -82,9 +168,9 @@ export class PostsService {
     );
   }
 
-  async findOneForDetail(id: number) {
+  async findOneByIdForDetail(id: number) {
     const post = await this.postRepository.findOne(id, {
-      relations: ['tags', 'category'],
+      relations: ['tags', 'category', 'author'],
     });
     if (!post) {
       throw new NotFoundException(`Post #${id} not found`);
@@ -99,7 +185,7 @@ export class PostsService {
     }
   }
 
-  async findOne(id: number): Promise<Post> {
+  async findOneById(id: number): Promise<Post> {
     const post = await this.postRepository.findOne(id);
     if (!post) {
       throw new NotFoundException(`Post #${id} not found`);
@@ -107,8 +193,10 @@ export class PostsService {
     return post;
   }
 
-  async remove(id: number) {
-    const post = await this.findOne(id);
+  async remove(id: number, requestUser: RequestUser) {
+    await this.authorizationCheck(id, requestUser);
+
+    const post = await this.findOneById(id);
     return this.postRepository.remove(post);
   }
 

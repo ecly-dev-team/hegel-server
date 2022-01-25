@@ -1,6 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { jwtConstants } from '../constants';
+import { RequestUser } from '../interface/request-user.interface';
 
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
@@ -16,6 +17,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       email: payload.email,
       id: payload.id,
       role: payload.role,
-    };
+    } as RequestUser;
   }
 }
