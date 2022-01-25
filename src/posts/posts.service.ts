@@ -51,7 +51,9 @@ export class PostsService {
       author,
       createDate,
     });
-    return this.postRepository.save(post);
+    const res = await this.postRepository.save(post);
+    delete res.author.password;
+    return res;
   }
 
   async authorizationCheck(
