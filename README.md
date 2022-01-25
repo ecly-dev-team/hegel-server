@@ -2,7 +2,7 @@
 
 This is the backend service of **Hegel Blogging Platform**.
 
-Test mirror repository.
+Here is a [synchronized repository](https://gitee.com/tth37/hegel-server-mirror) on gitee.
 
 ## Installation
 
