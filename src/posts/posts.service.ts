@@ -77,13 +77,14 @@ export class PostsService {
     id: number,
     requestUser: RequestUser,
   ): Promise<void> {
+    const post = await this.findOneByIdForDetail(id);
+
     if (
       requestUser.role === Role.ADMIN ||
       requestUser.role === Role.SUPER_ADMIN
     )
       return;
 
-    const post = await this.findOneByIdForDetail(id);
     if (post.author.id === requestUser.id) return;
 
     throw new ForbiddenException();
@@ -119,7 +120,7 @@ export class PostsService {
       updateDate,
     });
 
-    return post;
+    return this.postRepository.save(post);
   }
 
   // async update(id: number, updatePostDto: UpdatePostDto): Promise<Post> {
