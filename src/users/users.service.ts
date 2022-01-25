@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,6 +10,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { Role } from './enum/role.enum';
+import { AssignRoleDto } from './dto/assign-role.dto';
+import { RequestUser } from 'src/auth/interface/request-user.interface';
 
 @Injectable()
 export class UsersService {
@@ -41,14 +44,14 @@ export class UsersService {
   }
 
   async checkDuplicatedEmail(email: string) {
-    const user = await this.findOneByEmail(email);
+    const user = await this.userRepository.findOne({ email });
     if (user) {
       throw new BadRequestException('Duplicated Email');
     }
   }
 
   async checkDuplicatedName(name: string) {
-    const user = await this.findOneByName(name);
+    const user = await this.userRepository.findOne({ name });
     if (user) {
       throw new BadRequestException('Duplicated Name');
     }
@@ -72,5 +75,32 @@ export class UsersService {
     }
     delete res.password;
     return res;
+  }
+
+  async assign(assignRoleDto: AssignRoleDto, requestUser: RequestUser) {
+    if (assignRoleDto.role === Role.SUPER_ADMIN) {
+      throw new ForbiddenException();
+    }
+    if (
+      assignRoleDto.role === Role.ADMIN &&
+      requestUser.role !== Role.SUPER_ADMIN
+    ) {
+      throw new ForbiddenException();
+    }
+    const user = await this.userRepository.preload({
+      id: assignRoleDto.userId,
+      role: assignRoleDto.role,
+    });
+    const res = await this.userRepository.save(user);
+    delete res.password;
+    return res;
+  }
+
+  async findAll() {
+    const users = await this.userRepository.find();
+    return users.map((user) => {
+      delete user.password;
+      return user;
+    });
   }
 }
