@@ -87,10 +87,8 @@ export class UsersService {
     ) {
       throw new ForbiddenException();
     }
-    const user = await this.userRepository.preload({
-      id: assignRoleDto.userId,
-      role: assignRoleDto.role,
-    });
+    const user = await this.findOneById(assignRoleDto.userId);
+    user.role = assignRoleDto.role;
     const res = await this.userRepository.save(user);
     delete res.password;
     return res;

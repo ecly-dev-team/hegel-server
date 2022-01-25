@@ -54,25 +54,6 @@ export class PostsService {
     return this.postRepository.save(post);
   }
 
-  // async create2(createPostDto: CreatePostDto): Promise<Post> {
-  //   const tags =
-  //     createPostDto.tags &&
-  //     (await Promise.all(
-  //       createPostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
-  //     ));
-  //   const category =
-  //     createPostDto.category === 0
-  //       ? null
-  //       : await this.categoriesService.findOneById(createPostDto.category);
-  //   const post = this.postRepository.create({
-  //     ...createPostDto,
-  //     tags,
-  //     category,
-  //   });
-  //   console.log(post);
-  //   return this.postRepository.save(post);
-  // }
-
   async authorizationCheck(
     id: number,
     requestUser: RequestUser,
@@ -122,27 +103,6 @@ export class PostsService {
 
     return this.postRepository.save(post);
   }
-
-  // async update(id: number, updatePostDto: UpdatePostDto): Promise<Post> {
-  //   const tags =
-  //     updatePostDto.tags &&
-  //     (await Promise.all(
-  //       updatePostDto.tags.map((tag) => this.tagsService.preloadTagByName(tag)),
-  //     ));
-  //   // be aware of updatePostDto.category being 'undefined'
-  //   const category =
-  //     updatePostDto.category === 0
-  //       ? null
-  //       : updatePostDto.category &&
-  //         (await this.categoriesService.findOneById(updatePostDto.category));
-  //   const post = await this.postRepository.preload({
-  //     id,
-  //     ...updatePostDto,
-  //     tags,
-  //     category,
-  //   });
-  //   return this.postRepository.save(post);
-  // }
 
   async findAllForList(paginationQueryDto: PaginationQueryDto) {
     const { limit, offset } = paginationQueryDto;
