@@ -1,5 +1,6 @@
 import { Category } from 'src/categories/entities/category.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
+import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
@@ -39,4 +40,9 @@ export class Post {
 
   @ManyToOne(() => Category, (category) => category.posts)
   category: Category;
+
+  @ManyToOne(() => User, (user) => user.posts, {
+    onDelete: 'CASCADE',
+  })
+  author: User;
 }

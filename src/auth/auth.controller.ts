@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/users/enum/role.enum';
 import { AuthService } from './auth.service';
@@ -16,17 +23,9 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @Get('test/allow-superadmin-only')
-  @Roles(Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  getdata(@Request() req) {
-    return req.user;
-  }
-
-  @Get('test/allow-guest-and-superadmin')
-  @Roles(Role.GUEST, Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  getdata2(@Request() req) {
+  @Get('verify')
+  @UseGuards(JwtAuthGuard)
+  verify(@Request() req) {
     return req.user;
   }
 }

@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/posts/entities/post.entity';
 import { TreeRepository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
 
 @Injectable()
@@ -61,7 +62,7 @@ export class CategoriesService {
     if (category.posts.length) {
       throw new BadRequestException('posts is not empty');
     }
-    console.log(category);
+    console.log('Delete:', category);
     return this.categoryRepository.remove(category);
   }
 
@@ -71,5 +72,10 @@ export class CategoriesService {
 
   findAncesters(category: Category): Promise<Category[]> {
     return this.categoryRepository.findAncestors(category);
+  }
+
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.findOneById(id);
+    return this.categoryRepository.save({ ...category, ...updateCategoryDto });
   }
 }

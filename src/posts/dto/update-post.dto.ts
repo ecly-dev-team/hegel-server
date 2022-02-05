@@ -13,19 +13,12 @@ export class UpdatePostDto {
   @IsOptional()
   readonly content: string;
 
-  @IsDate()
-  @IsOptional()
-  readonly createDate: Date;
-
-  @IsDate()
-  readonly updateDate: Date;
-
   @IsString({ each: true })
   @IsOptional()
-  readonly tags: string[];
+  readonly tagNames: string[];
 
   @IsInt()
   @Min(0)
   @IsOptional()
-  readonly category: number;
+  readonly categoryId: number;
 }

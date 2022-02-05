@@ -2,6 +2,8 @@
 
 This is the backend service of **Hegel Blogging Platform**.
 
+Here is a [synchronized repository](https://gitee.com/tth37/hegel-server-mirror) on gitee.
+
 ## Installation
 
 ```bash
