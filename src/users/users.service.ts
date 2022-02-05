@@ -96,7 +96,28 @@ export class UsersService {
 
   async findAll() {
     const users = await this.userRepository.find();
-    return users.map((user) => {
+
+    function getRoleNumber(role: Role) {
+      switch (role) {
+        case Role.SUPER_ADMIN:
+          return 0;
+        case Role.ADMIN:
+          return 1;
+        case Role.EDITOR:
+          return 2;
+        case Role.GUEST:
+          return 3;
+      }
+    }
+
+    function cmp(a: User, b: User) {
+      if (a.role === b.role) {
+        return a.id - b.id;
+      }
+      return getRoleNumber(a.role) - getRoleNumber(b.role);
+    }
+
+    return users.sort(cmp).map((user) => {
       delete user.password;
       return user;
     });
@@ -146,6 +167,20 @@ export class UsersService {
         // not include sensitive information
         return this.updateUser(user, updateUserDto);
       }
+    }
+  }
+
+  async delete(id: number, requestUser: RequestUser) {
+    const user = await this.findOneById(id);
+    if (user.role === Role.SUPER_ADMIN) {
+      throw new ForbiddenException();
+    } else if (user.role === Role.ADMIN) {
+      if (requestUser.role === Role.SUPER_ADMIN) {
+        return this.userRepository.remove(user);
+      }
+      throw new ForbiddenException();
+    } else {
+      return this.userRepository.remove(user);
     }
   }
 }

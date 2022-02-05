@@ -18,6 +18,7 @@ import { Post } from './entities/post.entity';
 
 @Injectable()
 export class PostsService {
+  private postsCount = 0;
   constructor(
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
@@ -52,6 +53,7 @@ export class PostsService {
       createDate,
     });
     const res = await this.postRepository.save(post);
+    this.postsCount += 1;
     delete res.author.password;
     return res;
   }
@@ -113,12 +115,13 @@ export class PostsService {
         createDate: 'ASC',
       },
       select: ['id', 'title', 'abstract', 'createDate', 'updateDate'],
-      relations: ['tags', 'category'],
+      relations: ['tags', 'category', 'author'],
       skip: offset,
       take: limit,
     });
     return Promise.all(
       res.map(async (post) => {
+        delete post.author.password;
         if (post.category) {
           const ancesters = await this.categoriesService.findAncesters(
             post.category,
@@ -138,6 +141,7 @@ export class PostsService {
     if (!post) {
       throw new NotFoundException(`Post #${id} not found`);
     }
+    delete post.author.password;
     if (post.category) {
       const ancesters = await this.categoriesService.findAncesters(
         post.category,
@@ -160,11 +164,11 @@ export class PostsService {
     await this.authorizationCheck(id, requestUser);
 
     const post = await this.findOneById(id);
+    this.postsCount -= 1;
     return this.postRepository.remove(post);
   }
 
-  async getPostCount(): Promise<number> {
-    const postsAndCount = await this.postRepository.findAndCount();
-    return postsAndCount[1];
+  getPostCount(): number {
+    return this.postsCount;
   }
 }

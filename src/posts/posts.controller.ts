@@ -77,7 +77,8 @@ export class PostsController {
   @Roles(Role.EDITOR, Role.ADMIN, Role.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   async deletePost(@Request() req, @Param() idDto: IdDto) {
-    await this.postsService.remove(idDto.id, req.user);
+    const res = await this.postsService.remove(idDto.id, req.user);
     this.tagsService.removeOrphanedTags();
+    return res;
   }
 }

@@ -28,18 +28,4 @@ export class AuthController {
   verify(@Request() req) {
     return req.user;
   }
-
-  @Get('test/allow-superadmin-only')
-  @Roles(Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  getdata(@Request() req, @Body() testDto) {
-    return 233;
-  }
-
-  @Get('test/allow-guest-and-superadmin')
-  @Roles(Role.GUEST, Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  getdata2(@Request() req) {
-    return req.user;
-  }
 }

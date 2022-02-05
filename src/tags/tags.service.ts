@@ -30,9 +30,7 @@ export class TagsService {
 
   async findAll(): Promise<Tag[]> {
     const tags = await this.tagRepository.find({
-      order: {
-        name: 'ASC',
-      },
+      order: { name: 'ASC' },
     });
     return tags;
   }
