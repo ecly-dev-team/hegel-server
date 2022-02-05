@@ -4,4 +4,5 @@ export interface RequestUser {
   id: number;
   email: string;
   role: Role;
+  name: string;
 }

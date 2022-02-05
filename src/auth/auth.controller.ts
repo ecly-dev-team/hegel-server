@@ -23,6 +23,12 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
+  @Get('verify')
+  @UseGuards(JwtAuthGuard)
+  verify(@Request() req) {
+    return req.user;
+  }
+
   @Get('test/allow-superadmin-only')
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
